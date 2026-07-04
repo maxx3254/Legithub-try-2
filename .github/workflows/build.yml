@@ -1,4 +1,3 @@
-
 {
   "name": "Build LegitHUD",
   "on": { "push": { "branches": ["main"] }, "workflow_dispatch": {} },
@@ -9,9 +8,9 @@
         { "uses": "actions/checkout@v4" },
         { "run": "if [ -f legithud-source.zip ]; then unzip -o legithud-source.zip -d extracted; fi" },
         { "uses": "actions/setup-java@v4", "with": { "distribution": "temurin", "java-version": "21" } },
-        { "id": "find_dir", "run": "if [ -f build.gradle ]; then echo dir=. >> $GITHUB_OUTPUT; elif [ -f extracted/legithud/build.gradle ]; then echo dir=extracted/legithud >> $GITHUB_OUTPUT; elif [ -f extracted/build.gradle ]; then echo dir=extracted >> $GITHUB_OUTPUT; else exit 1; fi" },
-        { "run": "chmod +x \"${{ steps.find_dir.outputs.dir }}/gradlew\"" },
-        { "run": "cd \"${{ steps.find_dir.outputs.dir }}\" && ./gradlew build --no-daemon" },
+        { "id": "find_dir", "run": "if [ -f build.gradle ]; then echo dir=. >> $GITHUB_OUTPUT; elif [ -f extracted/legithud/build.gradle ]; then echo dir=extracted/legithud >> $GITHUB_OUTPUT; elif [ -f extracted/build.gradle ]; then echo dir=extracted >> $GITHUB_OUTPUT; else find extracted -name build.gradle; exit 1; fi" },
+        { "uses": "gradle/actions/setup-gradle@v4", "with": { "gradle-version": "8.14" } },
+        { "run": "cd \"${{ steps.find_dir.outputs.dir }}\" && gradle build --no-daemon" },
         { "uses": "actions/upload-artifact@v4", "with": { "name": "legithud-jar", "path": "${{ steps.find_dir.outputs.dir }}/build/libs/*.jar" } }
       ]
     }
