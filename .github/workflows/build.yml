@@ -6,6 +6,12 @@
       "runs-on": "ubuntu-latest",
       "steps": [
         { "uses": "actions/checkout@v4" },
-        { "run": "if [ -f legithud-source.zip ]; then unzip -o legithud-source.zip -d extracted; fi" },
+        { "run": "unzip -o legithud-source.zip -d extracted" },
         { "uses": "actions/setup-java@v4", "with": { "distribution": "temurin", "java-version": "21" } },
-        { "id": "find_dir", "run": "if [ -f build.gradle ]; then echo dir=. >> $GITHUB_OUTPUT; elif [ -f extracted/legithud/build.grad
+        { "uses": "gradle/actions/setup-gradle@v4", "with": { "gradle-version": "9.6.1" } },
+        { "run": "cd extracted/legithud && gradle build --no-daemon" },
+        { "uses": "actions/upload-artifact@v4", "with": { "name": "legithud-jar", "path": "extracted/legithud/build/libs/*.jar" } }
+      ]
+    }
+  }
+}
